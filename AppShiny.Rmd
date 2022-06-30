@@ -1,0 +1,106 @@
+---
+title: "RunAppShiny"
+author: "Freddy Espinoza"
+date: '2022-06-30'
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
+  )
+```
+
+```{r eruptions, echo=FALSE}
+library(plotly)
+shinyApp(
+
+  ui = fluidPage(
+    # Application title
+    titlePanel("My predictive model"),
+
+    # Sidebar with a slider input for age range
+    sidebarLayout(
+        sidebarPanel(
+            sliderInput("age_range",
+                        "Age range:",
+                        min = 40,
+                        max = 95,
+                        value = 55),
+            checkboxInput("ifhf", "Heart Failure", value = FALSE)       
+        ),
+
+        # Show a plot of the generated distribution
+        mainPanel(
+            plotlyOutput("distPlot"),
+            h3("Predicted Value from  Model 1: "),
+            textOutput("pred1"),
+            h3("Predicted Value from  Model 2: "),
+            textOutput("pred2")
+        )
+    )
+  ),
+
+  server = function(input, output) {
+    dataset <- read.csv("/Users/freddyespinoza/Downloads/_r/csvfolder/heart_failure_clinical_records_dataset.csv", 
+                      header = TRUE, sep = ",", dec = ".")
+  
+  df = data.frame(dataset)
+  # data regression
+  model1 <- lm(time ~ age, data = dataset)
+  model2 <- lm(time ~ age + DEATH_EVENT, data = df)
+  
+  # Reactive function to predict heart attacks based on age.
+  model1pred <- reactive({
+    mpginput <- input$age_range
+    predict(model1, newdata = data.frame(age = mpginput))
+  })
+  
+  # Reactive function to predict heart attacks based on age and if 
+  # you have previously had a heart attack.
+  model2pred <- reactive({
+    mpginput <- input$age_range
+    deathinput <- ifelse(input$ifhf, 1, 0)
+    predict(model2, newdata = data.frame(age = mpginput, DEATH_EVENT = deathinput))
+  })
+
+  # Generation of the graph associated with the data.
+  output$distPlot <- renderPlotly({
+    
+      mpginput <- input$age_range
+      
+      fig <- plot_ly(df, x= df$age, y=df$time, name ='heart_failure', 
+              type = 'scatter', 
+              mode = 'markers')
+      
+      fig <- fig %>% layout(
+        title ='Heart Failure Clinical', 
+        xaxis = list(title = 'Age'), 
+        yaxis = list(title = 'Follow-up days'))
+      
+      fig
+  
+  })
+  
+  # Invocation of the reactive function to show the value of the 
+  # prediction only as a function of age.
+  output$pred1 <- renderText({
+    model1pred()
+  })
+  
+  # Invocation of the reactive function to show the value of the
+  #prediction only based on age and if you have previously suffered a heart attack.
+  output$pred2 <- renderText({
+    model2pred()
+  })
+  },
+
+  options = list(height = 500)
+)
+```
+
+
+
