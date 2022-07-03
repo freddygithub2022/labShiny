@@ -1,0 +1,13 @@
+name: AppShiny
+title: AppShiny
+username:
+account: freddyshinyapps
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 6573658
+bundleId: 6057211
+url: https://freddyshinyapps.shinyapps.io/AppShiny/
+when: 1656581059.37001
+lastSyncTime: 1656581059.37002
+asMultiple: TRUE
+asStatic: FALSE

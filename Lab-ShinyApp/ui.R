@@ -11,15 +11,10 @@
 # The check indicates whether the person or patient has already suffered from heart failure.
 
 library(shiny)
-library(plotly)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
-
-    # Application title
     titlePanel("My predictive model"),
-
-    # Sidebar with a slider input for age range
     sidebarLayout(
         sidebarPanel(
             sliderInput("age_range",
@@ -27,16 +22,31 @@ shinyUI(fluidPage(
                         min = 40,
                         max = 95,
                         value = 55),
-            checkboxInput("ifhf", "Heart Failure", value = FALSE)       
+            checkboxInput("ifhf", "Heart Failure", value = FALSE),
+            checkboxInput("all", "Summary & Table Dynamic?", value = FALSE)
         ),
-
-        # Show a plot of the generated distribution
         mainPanel(
-            plotlyOutput("distPlot"),
-            h3("Predicted Value from  Model 1: "),
-            textOutput("pred1"),
-            h3("Predicted Value from  Model 2: "),
-            textOutput("pred2")
-        )
+          
+          tabsetPanel(type = "tabs",
+                      tabPanel("Plot", 
+                               br(),
+                               plotOutput("distPlot"),
+                               h3("Predicted Value from  Model 1: "),
+                               textOutput("pred1"),
+                               h3("Predicted Value from  Model 2: "),
+                               textOutput("pred2"),
+                               br(),
+                               ),
+                      tabPanel("Summary", 
+                               br(),
+                               h4("Statistical data of cases of heart conditions obtained from 
+                                  https://www.kaggle.com/code/tawejssh/heart-failure-prediction/notebook."),
+                               br(),
+                               verbatimTextOutput("summary")),
+                      tabPanel("Table", 
+                               br(),
+                               tableOutput("table"))
+          )
+      )
     )
 ))
